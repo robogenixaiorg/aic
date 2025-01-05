@@ -44,7 +44,8 @@ Concise Title Summarizing Changes
 """
 def interaction_loop(staged_changes: str):
     while True:
-        commit_message = generate_remote_message(staged_changes)
+        #commit_message = generate_remote_message(staged_changes)
+        commit_message = generate_commit_message(staged_changes)
         action = input("\n\nProceed to commit? [y(yes) | n[no] | r(regenerate)] ")
 
         match action:
