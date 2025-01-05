@@ -4,6 +4,7 @@ import sys
 import ollama
 import requests
 import json
+import argparse
 
 commands = {
     "is_git_repo": ["git", "rev-parse", "--git-dir"],
@@ -190,19 +191,26 @@ def run():
         # Fetch staged changes
         staged_changes = run_command(commands["get_stashed_changes"])
 
-        if not staged_changes:
-            print("\nNo staged changes to show.")
+        if not staged_changes.strip():
+            print("\n❌ No staged changes detected. Please stage your changes first.")
             sys.exit(0)
 
-        # Display staged changes
-        #print("\nStaged Changes:\n")
-        #print(staged_changes)
-
-
+        # Pass staged changes to the interaction loop
         interaction_loop(staged_changes)
     except KeyboardInterrupt:
         print("\n\n❌ AI commit exited.")
 
+def main():
+    parser = argparse.ArgumentParser(description="AgentBalu - Generate Commit Messages with AI")
+    parser.add_argument(
+        "-c", "--CommitMessage",
+        action="store_true",
+        help="Generate a commit message using AI"
+    )
 
-if __name__ == "__main__":
-    run()
+    args = parser.parse_args()
+
+    if args.CommitMessage:
+        run()  # Call the `run` function when the flag is provided
+    else:
+        parser.print_help()
