@@ -3,6 +3,7 @@ import subprocess
 import sys
 import ollama
 import requests
+import json
 
 commands = {
     "is_git_repo": ["git", "rev-parse", "--git-dir"],
@@ -44,8 +45,8 @@ Concise Title Summarizing Changes
 """
 def interaction_loop(staged_changes: str):
     while True:
-        #commit_message = generate_remote_message(staged_changes)
-        commit_message = generate_commit_message(staged_changes)
+        commit_message = generate_remote_message(staged_changes)
+        #commit_message = generate_commit_message(staged_changes)
         action = input("\n\nProceed to commit? [y(yes) | n[no] | r(regenerate)] ")
 
         match action:
@@ -64,15 +65,15 @@ def interaction_loop(staged_changes: str):
                 print("\n🤖 Invalid action")
                 break
 
-
 def generate_remote_message(staged_changes: str):
     try:
         payload = {
             "model": "llama3.2:latest",
             "messages": [
+                {"role": "system", "content": system_prompt},
                 {"role": "user", "content": f"Here is the diff from staged changes:\n {staged_changes}"}
             ],
-            "stream": True,  # Enable streaming response
+            "stream": True
         }
 
         headers = {
@@ -80,57 +81,55 @@ def generate_remote_message(staged_changes: str):
             "Authorization": f"Bearer {API_KEY}",
         }
 
-        print("✨ Generating commit message...")
+        print("\n✨ Sending request to remote Llama API...")
         response = requests.post(API_URL, json=payload, headers=headers, stream=True, timeout=30)
 
-        # Handle errors
+        # Check for HTTP errors
         if response.status_code != 200:
-            print(f"❌ Error: {response.status_code} - {response.text}")
+            print(f"\n❌ API Error: {response.status_code} - {response.text}")
             sys.exit(1)
 
-        # Process the streamed response
+        # Process streamed response
         commit_message = ""
         for chunk in response.iter_lines(decode_unicode=True):
-            if chunk:
-                # Remove "data: " prefix if present
-                if chunk.startswith("data: "):
-                    chunk = chunk[6:]
+            if chunk.startswith("data: "):  # Handle chunked response
+                chunk = chunk[6:]
+            if chunk.strip() == "[DONE]":  # End of stream
+                break
 
-                # Ignore "[DONE]" message
-                if chunk.strip() == "[DONE]":
-                    break
-
-                # Parse the JSON chunk
-                try:
-                    chunk_data = eval(chunk)  # or use `json.loads(chunk)` for better safety
-                    delta_content = chunk_data.get("choices", [{}])[0].get("delta", {}).get("content", "")
-                    commit_message += delta_content
-                    print(delta_content, end="", flush=True)  # Print in real-time
-                except Exception as e:
-                    print(f"\n⚠️ Error parsing chunk: {chunk}\n{e}")
+            # Parse JSON and extract content
+            try:
+                chunk_data = json.loads(chunk)
+                delta_content = chunk_data.get("choices", [{}])[0].get("delta", {}).get("content", "")
+                commit_message += delta_content
+                print(delta_content, end="", flush=True)  # Stream output
+            except json.JSONDecodeError:
+                # Handle non-JSON chunks
+                if chunk.strip():  # Log non-empty invalid chunks
+                    print(f"\n⚠️ Invalid JSON chunk: {chunk}")
+                continue
 
         if not commit_message.strip():
             print("\n❌ No commit message generated.")
             sys.exit(1)
 
-        print("\n" + "-" * 50)
         return commit_message
 
-    except requests.exceptions.Timeout:
-        print("❌ Request timed out.")
-        sys.exit(1)
-    except requests.exceptions.ConnectionError as e:
-        print(f"❌ Connection error: {str(e)}")
+    except requests.exceptions.RequestException as e:
+        print(f"\n❌ Request error: {str(e)}")
         sys.exit(1)
     except Exception as e:
-        print(f"❌ Error generating commit message: {str(e)}")
+        print(f"\n❌ Unexpected error: {str(e)}")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
+
 
 
 def generate_commit_message(staged_changes: str):
     try:
         stream = ollama.chat(
-            model="llama3.2:latest",
+            model="llama3.1:latest",
             messages=[
                 {
                     "role": "system",
