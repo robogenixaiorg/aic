@@ -11,8 +11,11 @@ version = "0.0.1"
 description = "AI generated commit messages!"
 
 dependencies = [
-    "ollama==0.3.3",
+    "requests>=2.25.1",      
+    "argparse",              
+    "ollama==0.3.3",         
+
 ]
 
 [project.scripts]
-AgentBalu = "ai_commit.app:main"
+aic = "ai_commit.cli:main"

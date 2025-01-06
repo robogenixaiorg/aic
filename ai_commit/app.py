@@ -12,9 +12,13 @@ commands = {
     "commit": ["git", "commit", "-m"],
     "get_stashed_changes": ["git", "diff", "--cached"],
 }
-
-API_URL = "https://chat.spicyfy.io/api/chat/completions"
-API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlOGJkMzMwLTFjNTgtNDhjNC04YjU3LWEwOTJjNjkzZGVjZCJ9.lLaSN63i_WdsjBrMZcM-VXhaNTcEokd5qPDMkZln-lY"
+API_KEY = os.getenv("AI_API_KEY")
+API_URL = os.getenv("AI_API_URL")
+if not API_KEY or not API_URL:
+    print("❌ Error: Please set the environment variables 'AI_API_KEY' and 'AI_API_URL'")
+    sys.exit(1)
+#API_URL = "https://chat.spicyfy.io/api/chat/completions"
+#API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlOGJkMzMwLTFjNTgtNDhjNC04YjU3LWEwOTJjNjkzZGVjZCJ9.lLaSN63i_WdsjBrMZcM-VXhaNTcEokd5qPDMkZln-lY"
 
 system_prompt = """
 You are an expert AI commit message generator specialized in creating concise, informative commit messages that follow best practices in version control.
@@ -200,17 +204,3 @@ def run():
     except KeyboardInterrupt:
         print("\n\n❌ AI commit exited.")
 
-def main():
-    parser = argparse.ArgumentParser(description="AgentBalu - Generate Commit Messages with AI")
-    parser.add_argument(
-        "-c", "--CommitMessage",
-        action="store_true",
-        help="Generate a commit message using AI"
-    )
-
-    args = parser.parse_args()
-
-    if args.CommitMessage:
-        run()  # Call the `run` function when the flag is provided
-    else:
-        parser.print_help()
