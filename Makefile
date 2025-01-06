@@ -24,6 +24,7 @@ clean: # Clean temporary and build files
 setup: # Install the package globally
 	@echo "🔧 Installing the package globally..."
 	@pip3 install .
+	@pip install .
 	@if [ -z "$$AI_API_KEY" ] || [ -z "$$AI_API_URL" ]; then \
 		echo "❌ Error: 'AI_API_KEY' and 'AI_API_URL' environment variables are not set."; \
 		echo "➡️  Please set them using the following commands (Linux/MacOS):"; \
