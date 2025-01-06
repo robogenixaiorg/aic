@@ -18,24 +18,41 @@ AgentBalu is a Python-based tool that uses AI to generate concise and informativ
    ```bash
    git clone https://github.com/yourusername/AgentBalu.git
    cd AgentBalu
+2. **Setup environment variables for API_KEY and API_URL(Linux/MacOS)**:
+   ```bash
+   export AI_API_KEY="your_api_key_here"
+   export AI_API_URL="https://your.api.url"
 
-2. **Setup environment variables for API_KEY and API_URL**:
-    * For linux/MacOS:
-        1. setup environment variables
-        `export AI_API_KEY="your_api_key_here"`
-        `export AI_API_URL="https://your.api.url"`
+   #reload shell
 
-        2. reload shell
-        `source ~/.bashrc`
+   source ~/.bashrc  # Or source ~/.zshrc
+3. **Environment variables for (Windows)**:
+   ```bash
+   $env:AI_API_KEY="your_api_key_here"
+   $env:AI_API_URL="https://your.api.url"
+4. **Run the makefile for seamless setup and cleanup:
+   ```bash
+   make setup
+## Usage
 
-    * For Windows(Powershell):
-        1. setup environment variables
-        `$env:AI_API_KEY="your_api_key_here"`
-        `$env:AI_API_URL="https://your.api.url"`
+AgentBalu is not configured to be used globally in any project.
 
+1. Stage Your Changes: Make sure you have staged changes in your Git repository:
 
-2. **Setup the Package**:
-    ```bash
-    make setup
+   ```bash
+   git add <file>
+2. Run the Tool: Simply type:
 
-3. 
+   ```bash
+   aic
+3. Example Output:
+   ```bash
+   Running AI-based commit message generation...
+   ✨ Generating commit message:
+   - Updated logic for user authentication
+   - Improved error handling for invalid inputs
+
+## Cleanup
+
+You can run `make clean` to clean the package when you are done using it to uninstall the package.
+Alternatively you can run `pip uninstall ai-commit` or `pip3 uninstall ai-commit`.
