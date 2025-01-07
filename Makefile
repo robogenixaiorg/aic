@@ -1,9 +1,7 @@
-SHELL :=/bin/bash
+SHELL := /bin/bash
 
 .PHONY: clean check setup fix help
-.DEFAULT_GOAL=help
-VENV_DIR = .venv
-PYTHON_VERSION=python3.11
+.DEFAULT_GOAL = help
 
 check: # Ruff check
 	@ruff check .
@@ -17,7 +15,6 @@ clean: # Clean temporary and build files
 	@echo "🧹 Cleaning up..."
 	@rm -rf __pycache__ .pytest_cache
 	@rm -rf build dist *.egg-info
-	@rm -rf $(VENV_DIR)
 	@find . -name '*.pyc' -delete
 	@find . -name '__pycache__' -delete
 	@echo "✅ Clean-up complete!"
@@ -29,10 +26,10 @@ setup: # Install the package globally
 		exit 1; \
 	fi
 	@if [ "$$(id -u)" -eq 0 ]; then \
-		pip install .; \
+		pip install . --break-system-packages; \
 	else \
 		echo "Running with sudo to ensure global installation..."; \
-		sudo -H pip install .; \
+		sudo -H pip install . --break-system-packages; \
 	fi
 	@if [ -z "$$AI_API_KEY" ] || [ -z "$$AI_API_URL" ]; then \
 		echo "❌ Error: 'AI_API_KEY' and 'AI_API_URL' environment variables are not set."; \
