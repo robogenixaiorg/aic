@@ -1,6 +1,6 @@
 SHELL :=/bin/bash
 
-.PHONY: clean check setup
+.PHONY: clean check setup fix help
 .DEFAULT_GOAL=help
 VENV_DIR = .venv
 PYTHON_VERSION=python3.11
@@ -11,6 +11,7 @@ check: # Ruff check
 
 fix: # Fix auto-fixable linting issues
 	@ruff check app.py --fix
+	@echo "✅ Auto-fix complete!"
 
 clean: # Clean temporary and build files
 	@echo "🧹 Cleaning up..."
@@ -23,7 +24,10 @@ clean: # Clean temporary and build files
 
 setup: # Install the package globally
 	@echo "🔧 Installing the package globally..."
-	@pip3 install .
+	@if ! command -v pip &>/dev/null; then \
+		echo "❌ Error: 'pip' is not installed. Please install pip first."; \
+		exit 1; \
+	fi
 	@pip install .
 	@if [ -z "$$AI_API_KEY" ] || [ -z "$$AI_API_URL" ]; then \
 		echo "❌ Error: 'AI_API_KEY' and 'AI_API_URL' environment variables are not set."; \
