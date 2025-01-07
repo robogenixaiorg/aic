@@ -28,7 +28,12 @@ setup: # Install the package globally
 		echo "❌ Error: 'pip' is not installed. Please install pip first."; \
 		exit 1; \
 	fi
-	@pip install .
+	@if [ "$$(id -u)" -eq 0 ]; then \
+		pip install .; \
+	else \
+		echo "Running with sudo to ensure global installation..."; \
+		sudo -H pip install .; \
+	fi
 	@if [ -z "$$AI_API_KEY" ] || [ -z "$$AI_API_URL" ]; then \
 		echo "❌ Error: 'AI_API_KEY' and 'AI_API_URL' environment variables are not set."; \
 		echo "➡️  Please set them using the following commands (Linux/MacOS):"; \
